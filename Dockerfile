@@ -7,4 +7,4 @@ WORKDIR /home/app/api
 
 RUN yarn
 
-CMD yarn build && yarn production
+CMD yarn production
