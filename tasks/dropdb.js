@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 require('dotenv').config()
 const { Client } = require('pg')
 
@@ -11,13 +10,9 @@ const client = new Client({
 })
 client.connect()
 
-client.query(`CREATE DATABASE ${process.env.PGDATABASE}`, (err, res) => {
+client.query(`DROP DATABASE IF EXISTS ${process.env.PGDATABASE}`, (err, res) => {
   if(err) {
-    if(err.code === '42P04') {
-      console.info(err.message) 
-    } else {
-      console.log(err)
-    }
+    console.log(err)
   }
   client.end()
 })
