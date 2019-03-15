@@ -10,7 +10,7 @@ const getUrl = pathname => url.format({
   pathname
 });
 
-describe('Feathers application tests (with jest)', () => {
+describe('Application tests', () => {
   beforeAll(done => {
     this.server = app.listen(port);
     this.server.once('listening', () => done());
@@ -25,6 +25,21 @@ describe('Feathers application tests (with jest)', () => {
     return rp(getUrl()).then(
       body => expect(body.indexOf('<html>')).not.toBe(-1)
     );
+  });
+
+
+  describe('system routes', () => {
+    it('/system/readiness should return 200', () => {
+      rp({
+        url: getUrl('/system/readiness')
+      }).catch(res => expect(res.statusCode).toBe(200))
+    });
+    
+    it('/system/liveliness should return 200', () => {
+      rp({
+        url: getUrl('/system/liveliness')
+      }).catch(res => expect(res.statusCode).toBe(200))
+    });
   });
 
   describe('404', () => {
