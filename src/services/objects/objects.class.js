@@ -55,3 +55,4 @@ module.exports = function (options) {
 };
 
 module.exports.Service = Service;
+

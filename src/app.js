@@ -17,6 +17,7 @@ const services = require('./services');
 const middleware = require('./middleware');
 const appHooks = require('./app.hooks');
 const channels = require('./channels');
+const swagger = require('feathers-swagger')
 
 const app = express(feathers());
 
@@ -33,6 +34,20 @@ app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 app.use('/', express.static(app.get('public')));
 app.use('/system/readiness', (req,res) => res.sendStatus(200))
 app.use('/system/liveliness', (req,res) => res.sendStatus(200))
+
+app.configure(swagger({
+  docsPath: '/docs',
+  info: {
+    title: 'IRIS API',
+    description: 'Documentation of IRIS API',
+    licence: {
+      name: "MIT",
+      url: "https://github.com/sapcc/iris-api/blob/master/LICENSE"
+    },
+    version: process.env.npm_package_version 
+  },
+  security: {}
+}))
 
 // Set up Plugins and providers
 app.configure(express.rest());

@@ -40,6 +40,7 @@
     "@feathersjs/socketio": "^3.2.7",
     "compression": "^1.7.3",
     "cors": "^2.8.5",
+    "feathers-swagger": "^0.7.2",
     "helmet": "^3.15.0",
     "node-pg-migrate": "^3.18.0",
     "pg": "^7.8.2",
