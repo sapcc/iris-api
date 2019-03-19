@@ -8,6 +8,4 @@ export PGPASSWORD=$IRIS_API_DB_PASSWORD
 export PGDATABASE=${IRIS_API_POSTGRES_DB:-iris_api_production}
 
 yarn setup
-
-#unset PGHOST PGUSER PGPASSWORD PGDATABASE
 yarn production
