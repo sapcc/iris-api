@@ -17,7 +17,13 @@ const services = require('./services');
 const middleware = require('./middleware');
 const appHooks = require('./app.hooks');
 const channels = require('./channels');
-const swagger = require('feathers-swagger')
+
+// Load swagger definitions.
+// We are using jsdoc to define swagger definitions inside js files.
+// As soon as @swagger appears in comments in js files, this is taken as api documentation.
+const swaggerJSDoc = require('swagger-jsdoc')
+const swaggerDefinition = require('./swaggerDef')
+const swaggerSpec = swaggerJSDoc(swaggerDefinition)
 
 const app = express(feathers());
 
@@ -35,19 +41,11 @@ app.use('/', express.static(app.get('public')));
 app.use('/system/readiness', (req,res) => res.sendStatus(200))
 app.use('/system/liveliness', (req,res) => res.sendStatus(200))
 
-app.configure(swagger({
-  docsPath: '/docs',
-  info: {
-    title: 'IRIS API',
-    description: 'Documentation of IRIS API',
-    licence: {
-      name: "MIT",
-      url: "https://github.com/sapcc/iris-api/blob/master/LICENSE"
-    },
-    version: process.env.npm_package_version 
-  },
-  security: {}
-}))
+// serve openApi definition under the route /docs in json format.
+app.use('/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 // Set up Plugins and providers
 app.configure(express.rest());

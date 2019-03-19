@@ -1,12 +1,48 @@
 /* eslint-disable no-unused-vars */
 const { Pool } = require('pg')
 
-class Service {
+/**
+ * @swagger
+ * definitions:
+ *   Object:
+ *     type: object
+ *     required: 
+ *       - id
+ *       - name
+ *       - object_type
+ *       - payload
+ *     properties:
+ *       id:
+ *         type: string
+ *       name: 
+ *         type: string
+ *       object_type:
+ *         type: string
+ *       payload:
+ *         type: string
+ *         description: a valid **JSON** string
+ */
+module.exports = class Service {
   constructor (options) {
     this.pool = new Pool()
     this.options = options || {};
   }
 
+  /**
+   * @swagger
+   * /objects/{id}:
+   *   get:
+   *     description: Returns a specific object
+   *     tags:
+   *       - object
+   *     produces:
+   *       - application/json
+   *     responses: 
+   *       200:
+   *         description: objects
+   *         schema:
+   *           $ref: '#/definitions/Object'
+   */
   async find (params) {
     const client = await this.pool.connect()
     try {
@@ -49,10 +85,4 @@ class Service {
     return { id };
   }
 }
-
-module.exports = function (options) {
-  return new Service(options);
-};
-
-module.exports.Service = Service;
 

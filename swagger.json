@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "IRIS API",
+    "description": "\nHere you will find a detailed description of IRIS API.\n# Introduction\nThis API is documented in **OpenAPI format**"
+  },
+  "paths": {
+    "/objects/{id}": {
+      "get": {
+        "description": "Returns a specific object",
+        "tags": [
+          "object"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "objects",
+            "schema": {
+              "$ref": "#/definitions/Object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Object": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "object_type",
+        "payload"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "object_type": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "string",
+          "description": "a valid **JSON** string"
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
