@@ -7,4 +7,5 @@ WORKDIR /home/app/api
 
 RUN yarn
 
-CMD yarn production
+CMD ["docker/entrypoint.sh"]
+
