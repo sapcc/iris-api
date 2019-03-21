@@ -3,28 +3,40 @@ const { Pool } = require('pg')
 
 /**
  * @swagger
+
+ *     
  * components:
  *   schemas:
  *     Object:
  *       type: object
  *       properties:
+ *         client_id: 
+ *           type: integer
  *         id:
  *           type: string
  *         name: 
  *           type: string
  *         object_type:
  *           type: string
+ *         payload:
+ *           type: string
+ *           description: a valid **JSON** string
  *         created_at: 
  *           type: string
  *           format: date-time
  *         updated_at:
  *           type: string
  *           format: date-time
- *         payload:
- *           type: string
- *           description: a valid **JSON** string
+ *       example:
+ *         client_id: 1
+ *         id: '123456789'
+ *         name: 'test'
+ *         object_type: 'server'
+ *         payload: '{"name": "test", "id": "123456789", "network_id": "987654321"}'
+ *         created_at: 2019-03-21T15:47:10Z
+ *         updated_at: 2019-03-21T15:47:10Z
  *
- *     Object New:
+ *     ObjectNew:
  *       type: object
  *       required: 
  *         - id
@@ -52,13 +64,20 @@ module.exports = class Service {
    * @swagger
    * /objects:
    *   get:
-   *     description: Retrieve a list of objects
+   *     description: Retrieve a list of objects. Returns all objects if no query parameter is provided.
    *     summary: GET /objects
    *     tags:
-   *       - object
+   *       - objects
+   *       - find
    *     produces:
    *       - application/json
    *     parameters:
+   *       - in: query
+   *         name: client_id
+   *         description: Find all objects by client id **ONLY FOR API ADMIN**
+   *         schema:
+   *           type: string
+   *           example: '?client_id=1'
    *       - in: query
    *         name: searchTerm
    *         description: Term for the full-text search   
@@ -67,7 +86,7 @@ module.exports = class Service {
    *           example: '?searchTerm=test'
    *       - in: query
    *         name: idIn
-   *         description: comma separeted list of object ids to retrieve corresponding objects 
+   *         description: comma separated list of object ids to retrieve corresponding objects 
    *         schema:
    *           type: string        
    *           example: '?idIn=1,2,3,4,5'
@@ -83,15 +102,37 @@ module.exports = class Service {
    *         schema:
    *           type: string
    *           example: '?where=network_id,1'
+   *       - 
+   *         $ref: '#/components/parameters/page'
+   *       -
+   *         $ref: '#/components/parameters/per_page'
+   *
    *     responses: 
    *       200:
    *         description: Success
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/Object'
+   *               type: object
+   *               properties:
+   *                 _metadata:
+   *                   $ref: '#/components/schemas/Metadata'
+   *                 objects:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Object'
+   *
+   *         headers:
+   *           Link: 
+   *             description: pagination links
+   *             schema:
+   *               type: string
+   *               example: 
+   *                 '<https://iris-api.cloud.sap/objects?limit=20&page=5>; rel="next",
+   *                  <https://iris-api.cloud.sap/objects?limit=20&page=10>; rel="last", 
+   *                  <https://iris-api.cloud.sap/objects?limit=20&page=1>; rel="first",
+   *                  <https://iris-api.cloud.sap/objects?limit=20&page=4>; rel="prev"'
+   *                        
    *       400:
    *         $ref: '#/components/responses/BadRequest'
    *       500:
@@ -119,7 +160,7 @@ module.exports = class Service {
    *       - application/json
    *     responses: 
    *       200:
-   *         description: objects list
+   *         description: object
    *         content:
    *           application/json:
    *             schema:
@@ -150,7 +191,7 @@ module.exports = class Service {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/Object New'
+   *             $ref: '#/components/schemas/ObjectNew'
    *     produces:
    *       - application/json
    *     responses: 
@@ -160,7 +201,6 @@ module.exports = class Service {
    *         description: Updated
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
-
    */
   async create (data, params) {
     const text = 'INSERT INTO objects(id, name, object_type, payload) VALUES($1, $2, $3, $4) RETURNING *'
@@ -183,6 +223,28 @@ module.exports = class Service {
     return data;
   }
 
+ /**
+   * @swagger
+   * /objects/{id}:
+   *   delete:
+   *     description: Remove an object 
+   *     summary: DELETE /objects/{id}
+   *     tags:
+   *       - object
+   *       - delete
+   *       - remove
+   *     produces:
+   *       - application/json
+   *     responses: 
+   *       204:
+   *         description: Successfully processed
+   *       400:
+   *         $ref: '#/components/responses/BadRequest'
+   *       404:
+   *         $ref: '#/components/responses/NotFound'
+   *       500:
+   *         $ref: '#/components/responses/UnexpectedError'
+   */
   async remove (id, params) {
     return { id };
   }
