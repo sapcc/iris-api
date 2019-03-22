@@ -45,7 +45,8 @@ app.use('/system/liveliness', (req,res) => res.sendStatus(200))
 app.use('/docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
-});
+})
+
 
 // Set up Plugins and providers
 app.configure(express.rest());
@@ -54,7 +55,15 @@ app.configure(socketio());
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware);
 // Set up our services (see `services/index.js`)
- 
+
+
+app.use((req, res, next) => {
+  req.feathers.authToken = req.headers['x-auth-token'] 
+  req.feathers.headers = req.headers 
+  next()
+})
+
+
 app.configure(services);
 
 // Set up event channels (see channels.js)

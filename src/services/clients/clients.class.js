@@ -112,6 +112,8 @@ class Service {
    *                     $ref: '#/components/schemas/Client'
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
@@ -120,7 +122,7 @@ class Service {
     return [];
   }
 
- /**
+  /**
    * @swagger
    * /clients/{id}:
    *   get:
@@ -139,6 +141,8 @@ class Service {
    *               $ref: '#/components/schemas/Client' 
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
@@ -150,7 +154,7 @@ class Service {
     };
   }
 
- /**
+  /**
    * @swagger
    * /clients:
    *   post:
@@ -176,6 +180,8 @@ class Service {
    *               $ref: '#/components/schemas/Client' 
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
@@ -187,7 +193,7 @@ class Service {
     return data;
   }
 
- /**
+  /**
    * @swagger
    * /clients/{id}:
    *   put:
@@ -213,6 +219,8 @@ class Service {
    *               $ref: '#/components/schemas/Client' 
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
@@ -222,7 +230,7 @@ class Service {
     return data;
   }
 
- /**
+  /**
    * @swagger
    * /clients/{id}:
    *   delete:
@@ -239,6 +247,8 @@ class Service {
    *         description: Successfully processed
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:

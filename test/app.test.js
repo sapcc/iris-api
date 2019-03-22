@@ -69,4 +69,34 @@ describe('Application tests', () => {
       });
     });
   });
+
+  describe('auth token on /objects', () => {
+    describe('missing auth token', () => {
+      it('returns 401 error', () => {
+        expect.assertions(3)  
+        return rp({
+          url: getUrl('/objects'),
+          json: true
+        }).catch(res => { 
+          expect(res.statusCode).toBe(401)
+          expect(res.error.code).toBe(401)
+          expect(res.error.message).toEqual('Missing auth token. Please check the presence of the header X-AUTH-TOKEN')
+        })
+      })
+    }) 
+    describe('invalid token syntax', () => {
+      it('returns 401 error', () => {
+        expect.assertions(3)  
+        return rp({
+          url: getUrl('/objects'),
+          headers: {'X-AUTH-TOKEN': 'dasdasdsadsadsad'},
+          json: true
+        }).catch(res => { 
+          expect(res.statusCode).toBe(401)
+          expect(res.error.code).toBe(401)
+          expect(res.error.message).toEqual('Invalid token. Please check the syntax of X-AUTH-TOKEN')
+        })
+      })
+    }) 
+  })
 });

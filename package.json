@@ -30,6 +30,7 @@
     "dev": "nodemon src/",
     "start": "node src/",
     "jest": "jest",
+    "jest-watch": "jest --watch",
     "migrate": "node-pg-migrate -m db/migrations",
     "production": "NODE_ENV=production PORT=80 node src/"
   },

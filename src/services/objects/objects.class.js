@@ -3,7 +3,6 @@ const { Pool } = require('pg')
 
 /**
  * @swagger
-
  *     
  * components:
  *   schemas:
@@ -106,6 +105,12 @@ module.exports = class Service {
    *         $ref: '#/components/parameters/page'
    *       -
    *         $ref: '#/components/parameters/per_page'
+   *       - in: query
+   *         name: includeMetadata
+   *         schema:
+   *           type: bool
+   *           default: true
+   *           example: '?includeMetadata=true'
    *
    *     responses: 
    *       200:
@@ -135,6 +140,8 @@ module.exports = class Service {
    *                        
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
@@ -148,7 +155,8 @@ module.exports = class Service {
       return e //console.error(e.stack)
     }
   }
- /**
+  
+  /**
    * @swagger
    * /objects/{id}:
    *   get:
@@ -167,6 +175,8 @@ module.exports = class Service {
    *               $ref: '#/components/schemas/Object' 
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
@@ -178,7 +188,7 @@ module.exports = class Service {
     };
   }
 
- /**
+  /**
    * @swagger
    * /objects:
    *   post:
@@ -199,6 +209,8 @@ module.exports = class Service {
    *         description: Created
    *       202:
    *         description: Updated
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
@@ -223,7 +235,7 @@ module.exports = class Service {
     return data;
   }
 
- /**
+  /**
    * @swagger
    * /objects/{id}:
    *   delete:
@@ -240,6 +252,8 @@ module.exports = class Service {
    *         description: Successfully processed
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
