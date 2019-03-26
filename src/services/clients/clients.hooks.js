@@ -1,8 +1,12 @@
-
+const { NotAuthenticated } = require('@feathersjs/errors');
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      (context) => {
+        if(!context.params.is_api_admin) return Promise.reject(new NotAuthenticated('Not Authorized'))
+      }
+    ],
     find: [],
     get: [],
     create: [],

@@ -3,6 +3,7 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
   pgm.createTable("objects", {
     id: { type: "varchar(500)", notNull: true, unique: true },
+    region: { type: 'varchar(100)', notNull: true },
     name: { type: "varchar(1000)"},
     object_type: { type: "varchar(500)", notNull: true },
     payload: { type: 'jsonb' },

@@ -10,7 +10,7 @@ const client = new Client({
 })
 client.connect()
 
-client.query(`INSERT INTO clients(api_key,secret,permissions) VALUES('${process.env.ADMIN_API_KEY}','${process.env.ADMIN_API_SECRET}','{"api_admin"}') ON CONFLICT(api_key) DO UPDATE SET secret='${process.env.ADMIN_API_SECRET}'`, (err, res) => {
+client.query(`INSERT INTO clients(api_key,secret,name,permissions,status) VALUES('${process.env.ADMIN_API_KEY}','${process.env.ADMIN_API_SECRET}','Api Admin','{"api_admin"}','active') ON CONFLICT(api_key) DO UPDATE SET secret='${process.env.ADMIN_API_SECRET}'`, (err, res) => {
   if(err) {
     if(err.code === '42P04') {
       console.info(err.message) 

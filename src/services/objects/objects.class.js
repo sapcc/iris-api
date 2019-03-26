@@ -160,7 +160,7 @@ module.exports = class Service {
    * @swagger
    * /objects/{id}:
    *   get:
-   *     description: Retrieve a specific object
+   *     description: '**NOT IMPLEMENTED YET** Retrieve a specific object'
    *     summary: GET /objects/{id}
    *     tags:
    *       - object
@@ -192,7 +192,7 @@ module.exports = class Service {
    * @swagger
    * /objects:
    *   post:
-   *     description: Add or update an object
+   *     description: '**NOT IMPLEMENTED YET** Add or update an object'
    *     summary: POST /objects
    *     tags:
    *       - object 
@@ -227,19 +227,11 @@ module.exports = class Service {
     }
   }
 
-  async update (id, data, params) {
-    return data;
-  }
-
-  async patch (id, data, params) {
-    return data;
-  }
-
   /**
    * @swagger
    * /objects/{id}:
    *   delete:
-   *     description: Remove an object 
+   *     description: '**NOT IMPLEMENTED YET** Remove an object' 
    *     summary: DELETE /objects/{id}
    *     tags:
    *       - object
