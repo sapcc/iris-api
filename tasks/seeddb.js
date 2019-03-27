@@ -8,9 +8,9 @@ const client = new Client({
   port: process.env.PGPORT,
   database: process.env.PGDATABASE
 })
-client.connect(`INSERT INTO clients(api_key,secret,name,permissions,status) VALUES('${process.env.ADMIN_API_KEY}','${process.env.ADMIN_API_SECRET}','Api Admin','{"api_admin"}','active') ON CONFLICT(api_key) DO UPDATE SET secret='${process.env.ADMIN_API_SECRET}'`)
 
-console.log()
+console.log(`INSERT INTO clients(api_key,secret,name,permissions,status) VALUES('${process.env.ADMIN_API_KEY}','${process.env.ADMIN_API_SECRET}','Api Admin','{"api_admin"}','active') ON CONFLICT(api_key) DO UPDATE SET secret='${process.env.ADMIN_API_SECRET}'`)
+
 client.query(`INSERT INTO clients(api_key,secret,name,permissions,status) VALUES('${process.env.ADMIN_API_KEY}','${process.env.ADMIN_API_SECRET}','Api Admin','{"api_admin"}','active') ON CONFLICT(api_key) DO UPDATE SET secret='${process.env.ADMIN_API_SECRET}'`, (err, res) => {
   if(err) {
     if(err.code === '42P04') {
