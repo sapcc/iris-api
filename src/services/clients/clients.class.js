@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 
+const { Forbidden } = require('@feathersjs/errors');
+
+const { Pool } = require('pg')
 /**
  * @swagger
  * components:
@@ -59,6 +62,7 @@
  */
 class Service {
   constructor (options) {
+    this.pool = new Pool()
     this.options = options || {};
   }
 
@@ -119,7 +123,14 @@ class Service {
    */
 
   async find (params) {
-    return [];
+    const client = await this.pool.connect()
+    try {
+      const res = await client.query({text: 'SELECT * FROM clients'})
+      client.release()
+      return res.rows
+    } catch(e) { 
+      return e //console.error(e.stack)
+    }
   }
 
   /**
@@ -149,9 +160,14 @@ class Service {
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async get (id, params) {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    const client = await this.pool.connect()
+    try {
+      const res = await client.query('SELECT * FROM clients WHERE id = $1', [id])
+      client.release()
+      return res.rows[0]
+    } catch(e) { 
+      return e //console.error(e.stack)
+    }
   }
 
   /**
@@ -189,8 +205,14 @@ class Service {
     if (Array.isArray(data)) {
       return Promise.all(data.map(current => this.create(current, params)));
     }
-
-    return data;
+    const client = await this.pool.connect()
+    try {
+      const res = await client.query('INSERT INTO clients(name,permissions,status) VALUES($1,$2,$3) RETURNING *', [data.name,(data.permissions || ["read"]), 'active']) 
+      client.release()
+      return Promise.resolve(res.rows[0])
+    } catch(e) {
+      return e
+    }
   }
 
   /**
@@ -221,13 +243,29 @@ class Service {
    *         $ref: '#/components/responses/BadRequest'
    *       401:
    *         $ref: '#/components/responses/Unauthorized'
+   *       403:
+   *         $ref: '#/components/responses/Forbidden'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async update (id, data, params) {
-    return data;
+    const client = await this.pool.connect()
+    try {
+      if(params.apiClient.id == id) return Promise.reject(new Forbidden('It is not allowed to update current authenticated client'))
+      const keys = Object.keys(data)
+      const values = Object.values(data)
+      values.push(id)
+
+      console.log(`UPDATE clients SET ${keys.map((k,i) => `${k} = $${i}`).join(', ')}, updated_at = NOW() WHERE id = $${keys.length+1} RETURNING *`,values)
+
+      const res = await client.query(`UPDATE clients SET ${keys.map((k,i) => `${k} = $${i+1}`).join(', ')}, updated_at = NOW() WHERE id = $${keys.length+1} RETURNING *`, values) 
+      client.release()
+      return Promise.resolve(res.rows[0])
+    } catch(e) {
+      return e
+    }
   }
 
   /**
@@ -243,19 +281,29 @@ class Service {
    *     produces:
    *       - application/json
    *     responses: 
-   *       204:
+   *       200:
    *         description: Successfully processed
    *       400:
    *         $ref: '#/components/responses/BadRequest'
    *       401:
    *         $ref: '#/components/responses/Unauthorized'
+   *       403:
+   *         $ref: '#/components/responses/Forbidden'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       500:
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async remove (id, params) {
-    return { id };
+    const client = await this.pool.connect()
+    try {
+      if(params.apiClient.id == id) return Promise.reject(new Forbidden('It is not allowed to delete current authenticated client'))
+      const res = await client.query('DELETE FROM clients WHERE id = $1 RETURNING *', [id])
+      client.release()
+      return Promise.resolve(res.rows)
+    } catch(e) { 
+      return e //console.error(e.stack)
+    }
   }
 }
 

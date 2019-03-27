@@ -1,95 +1,94 @@
-const rp = require('request-promise');
-const url = require('url');
-const app = require('../src/app');
+const { pgQueryMock } = require('./pg_mock')
+const rp = require('request-promise') 
+const url = require('url') 
+const app = require('../src/app') 
 const crypto = require('crypto')
 
-const { Pool }  = require('pg')
-jest.mock('pg')
-
-const port = app.get('port') || 3030;
+const port = app.get('port') || 3030 
 const getUrl = pathname => url.format({
   hostname: app.get('host') || 'localhost',
   protocol: 'http',
   port,
   pathname
-});
+}) 
+
+
+// let token2 = () => { 
+//   const timestamp = Math.floor(Date.now()/1000+4000); 
+//   return `adminApiKey.${crypto.createHmac('sha256','adminApiSecret').update(''+timestamp).digest('base64')}.${timestamp}`
+// }
+//
 
 const apiClientData = {api_key: 'valid_api_key', secret: 'secret' }
-const client = {
-  query: (params) => (
-    {rows : params.text == 'SELECT * FROM clients WHERE api_key = "valid_api_key"' ? [apiClientData] : [] }
-  ),
-  release: jest.fn()
-} 
-
-beforeAll(() => {
-  Pool.mockReset()
-  Pool.mockImplementation(() => ({connect: ()  => client}))
-})
 
 describe('Application tests', () => {
   beforeAll(done => {
-    this.server = app.listen(port);
-    this.server.once('listening', () => done());
-  });
+    this.server = app.listen(port) 
+    this.server.once('listening', () => done()) 
+  })
 
   afterAll(done => {
-    this.server.close(done);
-  });
+    this.server.close(done) 
+  })
+
+  beforeEach(() => 
+    pgQueryMock(`SELECT * FROM clients WHERE api_key = 'valid_api_key'`, [apiClientData])
+  )
 
   it('starts and shows the index page', () => {
-    expect.assertions(1);
+    expect.assertions(1) 
     return rp(getUrl()).then(
       body => expect(body.indexOf('<html>')).not.toBe(-1)
-    );
-  });
+    )
+  })
 
 
   describe('system routes', () => {
     it('/system/readiness should return 200', () => {
-      expect.assertions(1);
+      expect.assertions(1) 
       return rp({
         url: getUrl('/system/readiness')
       }).then(res => expect(res).toEqual('OK'))
-    });
+    }) 
 
     it('/system/liveliness should return 200', () => {
       expect.assertions(1)
       return rp({
         url: getUrl('/system/liveliness')
       }).then(res => expect(res).toEqual('OK'))
-    });
-  });
+    }) 
+  }) 
 
   describe('404', () => {
     it('shows a 404 HTML page', () => {
-      expect.assertions(2);
+      expect.assertions(2) 
       return rp({
         url: getUrl('path/to/nowhere'),
         headers: {
           'Accept': 'text/html'
         }
       }).catch(res => {
-        expect(res.statusCode).toBe(404);
-        expect(res.error.indexOf('<html>')).not.toBe(-1);
-      });
-    });
+        expect(res.statusCode).toBe(404) 
+        expect(res.error.indexOf('<html>')).not.toBe(-1) 
+      }) 
+    }) 
 
     it('shows a 404 JSON error without stack trace', () => {
-      expect.assertions(4);
+      expect.assertions(4) 
       return rp({
         url: getUrl('path/to/nowhere'),
         json: true
       }).catch(res => {
-        expect(res.statusCode).toBe(404);
-        expect(res.error.code).toBe(404);
-        expect(res.error.message).toBe('Page not found');
-        expect(res.error.name).toBe('NotFound');
-      });
-    });
-  });
+        expect(res.statusCode).toBe(404) 
+        expect(res.error.code).toBe(404) 
+        expect(res.error.message).toBe('Page not found') 
+        expect(res.error.name).toBe('NotFound') 
+      }) 
+    }) 
+  }) 
 
   describe('auth token on /objects', () => {
+
     describe('missing auth token', () => {
       it('returns 401 error', () => {
         expect.assertions(3)  
@@ -99,7 +98,7 @@ describe('Application tests', () => {
         }).catch(res => { 
           expect(res.statusCode).toBe(401)
           expect(res.error.code).toBe(401)
-          expect(res.error.message).toEqual('Missing auth token. Please check the presence of the header X-AUTH-TOKEN')
+          expect(res.error.message).toEqual('Missing auth token. Please check the presence of auth token')
         })
       })
     }) 
@@ -113,7 +112,7 @@ describe('Application tests', () => {
         }).catch(res => { 
           expect(res.statusCode).toBe(401)
           expect(res.error.code).toBe(401)
-          expect(res.error.message).toEqual('Invalid token. Please check the syntax of X-AUTH-TOKEN')
+          expect(res.error.message).toEqual('Invalid token. Please check the syntax of auth token')
         })
       })
     }) 
@@ -201,4 +200,5 @@ describe('Application tests', () => {
       })
     }) 
   })
-});
+}) 
+

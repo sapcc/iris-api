@@ -13,11 +13,12 @@ const loadApiClientData = async (apiKey) => {
   try {
     const pool = new Pool()
     const client = await pool.connect()
-    const res = await client.query({text: `SELECT * FROM clients WHERE api_key = "${apiKey}"`})
+    const res = await client.query({text: `SELECT * FROM clients WHERE api_key = '${apiKey}'`})
     client.release()
     apiClients[apiKey] = res.rows[0]
     return apiClients[apiKey]
   } catch(e) { 
+    console.error(e)
     return null 
   }
 }
@@ -26,12 +27,12 @@ const validateAuthToken = async  (context) => {
   try {
     if(!context.params.authToken) {
       return Promise.reject(
-        new NotAuthenticated('Missing auth token. Please check the presence of the header X-AUTH-TOKEN')
+        new NotAuthenticated('Missing auth token. Please check the presence of auth token')
       )
     }
     const [apiKey,signature,timestamp] = context.params.authToken.split('.')
     if(!apiKey || !signature || !timestamp) {
-      return Promise.reject(new NotAuthenticated('Invalid token. Please check the syntax of X-AUTH-TOKEN'))
+      return Promise.reject(new NotAuthenticated('Invalid token. Please check the syntax of auth token'))
     }
     const expirationTime = Number.parseInt(timestamp)
     if(Number.isNaN(expirationTime)) return Promise.reject(new NotAuthenticated('Invalid timestamp.'))
@@ -42,15 +43,14 @@ const validateAuthToken = async  (context) => {
     }
     
     const apiClientData = await loadApiClientData(apiKey)
-    console.log(':::::::::::::::::::::::.',context.params)
     if(!apiClientData) return Promise.reject(new NotAuthenticated('Could not find api key'))
 
     const refSignature  = crypto.createHmac('sha256', apiClientData.secret).update(timestamp).digest('base64')
     if(signature!=refSignature) return Promise.reject(new NotAuthenticated('Bad Signature'))
 
-    delete context.params.is_api_admin
-    if(apiClientData.permissions.indexOf('api_admin')) context.params.is_api_admin = true
-
+    delete context.params.apiClient
+    delete context.params.query.apiClient
+    context.params.apiClient = {...apiClientData, secret: '' }
 
   } catch(e) { return Promise.reject(new NotAuthenticated(e.message))}
 

@@ -11,6 +11,8 @@ const { Pool } = require('pg')
  *       properties:
  *         client_id: 
  *           type: integer
+ *         region: 
+ *           type: string
  *         id:
  *           type: string
  *         name: 
@@ -183,9 +185,14 @@ module.exports = class Service {
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async get (id, params) {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    const client = await this.pool.connect()
+    try {
+      const res = await client.query(`SELECT * FROM objects WHERE id = $1`,[id])
+      client.release()
+      return res.rows[0]
+    } catch(e) {
+      return Promise.reject(e)
+    }
   }
 
   /**
@@ -215,14 +222,14 @@ module.exports = class Service {
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async create (data, params) {
-    const text = 'INSERT INTO objects(id, name, object_type, payload) VALUES($1, $2, $3, $4) RETURNING *'
+    const text = 'INSERT INTO objects(client_id, id, name, region, object_type, payload) VALUES($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET client_id=$1, name=$3, region=$4, object_type=$5, payload=$6  RETURNING *'
     const client = await this.pool.connect()
     try {
-      const res = await client.query(text, [data.id, data.name, data.object_type, data.payload])
+      const res = await client.query(text, [params.apiClient.id, data.id, data.name, data.region, data.object_type, data.payload])
       client.release()
       return res.rows[0]
     } catch(e) {
-      return e
+      return Promise.reject(e)
       //console.error(e.stack)
     }
   }

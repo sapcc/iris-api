@@ -4,7 +4,9 @@ module.exports = {
   before: {
     all: [
       (context) => {
-        if(!context.params.is_api_admin) return Promise.reject(new NotAuthenticated('Not Authorized'))
+        if(context.params.apiClient.permissions.indexOf('api_admin')<0 || context.params.apiClient.status !== 'active') {
+          return Promise.reject(new NotAuthenticated('Not Authorized'))
+        }
       }
     ],
     find: [],
