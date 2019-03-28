@@ -259,7 +259,14 @@ module.exports = class Service {
    *         $ref: '#/components/responses/UnexpectedError'
    */
   async remove (id, params) {
-    return { id };
+    const client = await this.pool.connect()
+    try {
+      const res = await client.query('DELETE FROM objects WHERE id = $1 RETURNING *', [id])
+      client.release()
+      return Promise.resolve(res.rows)
+    } catch(e) { 
+      return e //console.error(e.stack)
+    }
   }
 }
 
